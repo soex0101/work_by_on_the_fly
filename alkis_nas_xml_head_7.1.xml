@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AX_Bestandsdatenauszug
+ xmlns="http://www.adv-online.de/namespaces/adv/gid/7.1"
+ xmlns:ak="http://www.adv-online.de/namespaces/adv/aaa-ak/2.0"
+ xmlns:gmd ="http://www.isotc211.org/2005/gmd"
+ xmlns:gml="http://www.opengis.net/gml/3.2"
+ xmlns:gmlexr="http://www.opengis.net/gml/3.3/exr"
+ xmlns:ows="http://www.opengis.net/ows/1.1"
+ xmlns:wfs="http://www.opengis.net/wfs/2.0"
+ xmlns:wfsext="http://www.adv-online.de/namespaces/adv/gid/wfsext/2.0"
+ xmlns:fes="http://www.opengis.net/fes/2.0"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:gco="http://www.isotc211.org/2005/gco"
+ xmlns:ext="http://www.supportgis.de/cpa"
+ xmlns:cpa="http://www.cpa-systems.de/namespaces/adv/gid/7.1"
+ xmlns:adv="http://www.adv-online.de/namespaces/adv/gid/7.1"
+ xsi:schemaLocation="http://www.adv-online.de/namespaces/adv/gid/7.1 aaa.xsd"
+>
+ <erfolgreich>true</erfolgreich>
+ <antragsnummer>LGL_0002297</antragsnummer>
+ <allgemeineAngaben>
+ <AX_K_Benutzungsergebnis>
+	<empfaenger>
+		<adv:AA_Empfaenger>
+			<adv:direkt>true</adv:direkt>
+		</adv:AA_Empfaenger>
+	</empfaenger>
+ </AX_K_Benutzungsergebnis>
+ </allgemeineAngaben>
+ <koordinatenangaben>
+   <AA_Koordinatenreferenzsystemangaben>
+     <crs xlink:href="urn:adv:crs:ETRS89_UTM32"></crs>
+     <anzahlDerNachkommastellen>3</anzahlDerNachkommastellen>
+     <standard>true</standard>
+   </AA_Koordinatenreferenzsystemangaben>
+ </koordinatenangaben>
+ <enthaelt>
+  <wfs:FeatureCollection gml:id="bdaFC">

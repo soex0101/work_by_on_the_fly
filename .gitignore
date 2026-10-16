@@ -1,0 +1,15 @@
+settings.ini
+venv
+.vscode
+alkis_xml
+download
+logs
+settings_backup
+draw_plot.py
+__pycache__/
+building_color/__pycache__/
+dashed_detection/__pycache__/
+labeling/__pycache__/
+nas/__pycache__/
+vertex/__pycache__/
+*.py[cod]
