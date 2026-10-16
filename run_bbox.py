@@ -255,10 +255,14 @@ def main():
     start_index = scripts.index(start_script_map[start_script]) if start_script in start_script_map else 0
 
     stopped_early = False
+    skip_sync_parcel = False
     for idx, script in enumerate(scripts):
         if not RUN_ALKIS_IMPORT and script == "7_create_alkis_db.py":
             continue
         if (not sync_parcel or not cfg.alkis_parcel_sync_wms_available) and script in ("2_rest_different_parcel.py", "2_rest_sync_parcel.py"):
+            continue
+        if skip_sync_parcel and script == "2_rest_sync_parcel.py":
+            print(f"[SKIP] {script}: 2_rest_diffent_parcel failed with exception.\n")
             continue
         if not cfg.atlas_dashed_wms_available and script in ("dashed_detection/download_wms.py", "dashed_detection/detect_lines.py"):
             continue
@@ -297,8 +301,14 @@ def main():
             if return_code != 0:
                 print(f"Error: {script} failed with exit code {return_code}")
                 if return_code == 1 and script == "2_rest_different_parcel.py":
-                    print("\n\nDiffering parcel detected. The parcel geoms are being automatically updated.")
+                    print("\n\nDiffering parcel detected. It will update parcel geoms automatically.")
                     # print("\n\nProcess failed: Parcel mismatch detected.")
+                if return_code == 2 and script == "2_rest_different_parcel.py":
+                    print("\n\nParcel API unavailable. Skipping 2_rest_sync_parcel.py.")
+                    skip_sync_parcel = True
+                if return_code == 3 and script == "2_rest_different_parcel.py":
+                    print("\n\nException in 2_rest_different_parcel.py. Skipping 2_rest_sync_parcel.py.")
+                    skip_sync_parcel = True
 
                 # The parcel sync scripts' errors are skipped; any other failed script
                 # stops the run, since the next scripts would build on missing data

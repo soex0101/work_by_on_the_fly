@@ -156,7 +156,6 @@ class Config:
 
     # parcel_difference
     api_url: str
-    continue_xpath: str
 
     # building_color
     building_source: str
@@ -312,7 +311,6 @@ def load_config(run_id: str = "") -> Config:
 
     # --- parcel_difference ---
     api_url = cfg.get("parcel_difference", "api_url")
-    continue_xpath = cfg.get("parcel_difference", "continue_xpath")
 
     # --- building_color ---
     building_source = cfg.get("building_color", "building_source", fallback="runtime")
@@ -446,7 +444,6 @@ def load_config(run_id: str = "") -> Config:
         proxy_file=proxy_file,
         launcher_url=launcher_url,
         api_url=api_url,
-        continue_xpath=continue_xpath,
         building_source=building_source,
         building_url=building_url,
         building_path=building_path,

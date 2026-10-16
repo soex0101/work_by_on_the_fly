@@ -29,6 +29,7 @@ Usage:
 import os
 import sys
 import time
+import traceback
 from decimal import Decimal
 from urllib.parse import quote
 
@@ -55,6 +56,9 @@ REQUEST_HEADERS = {
 REQUEST_TIMEOUT = 15          # seconds per HTTP request
 REQUEST_RETRIES = 3           # attempts per proxy before moving to the next one
 COMMIT_EVERY = 100            # commit to DB every N processed parcels
+API_DOWN_AFTER = 3            # consecutive parcels failing on ALL proxies -> api_url is down
+EXIT_API_UNAVAILABLE = 2      # exit code when api_url is down (1 means "different parcels found")
+EXIT_EXCEPTION = 3            # exit code when an unexpected exception occurs
 
 
 # ----------------------------
@@ -329,6 +333,7 @@ def main(run_id):
         session = requests.Session()
 
         confirmed = different = 0
+        consecutive_give_ups = 0
         proxy_start_index = 0
         total = len(rows)
         for i, row in enumerate(rows, 1):
@@ -340,6 +345,18 @@ def main(run_id):
             )
             confirmed += n_confirmed
             different += n_diff
+
+            # (0, 0) means every proxy failed for this parcel
+            if n_confirmed == 0 and n_diff == 0:
+                consecutive_give_ups += 1
+                if consecutive_give_ups >= API_DOWN_AFTER:
+                    conn.commit()
+                    print(f"[API UNAVAILABLE] {cfg.api_url}: {consecutive_give_ups} parcels in a row "
+                          f"failed on all proxies. Stopping at {i}/{total} parcels "
+                          f"(confirmed={confirmed}, different={different}).")
+                    sys.exit(EXIT_API_UNAVAILABLE)
+            else:
+                consecutive_give_ups = 0
 
             if i % COMMIT_EVERY == 0:
                 conn.commit()
@@ -360,7 +377,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     start = time.time()
-    different_count = main(sys.argv[1])
+    try:
+        different_count = main(sys.argv[1])
+    except Exception:
+        traceback.print_exc()
+        sys.exit(EXIT_EXCEPTION)
     print(f"Elapsed: {time.time() - start:.1f}s")
 
     sys.exit(1 if different_count > 0 else 0)
