@@ -361,12 +361,10 @@ FROM dblink(%s, 'SELECT ogc_fid, geom FROM public.hausumringe')
     AS src(
         ogc_fid integer, 
         geom geometry(MultiPolygon, 25832))
-    WHERE ST_Intersects(src.geom, ST_MakeEnvelope(%s, %s, %s, %s, 25832)) AND
-        ST_Area(ST_Intersection(src.geom, ST_MakeEnvelope(%s, %s, %s, %s, 25832))) >= ST_Area(src.geom) * 0.9;
+    WHERE ST_Intersects(src.geom, ST_MakeEnvelope(%s, %s, %s, %s, 25832));
 """
 db_crud.run_query(connection_cadastral, query, (
     connection_address_string,
-    *cfg.bbox,
     *cfg.bbox
 ))
 
