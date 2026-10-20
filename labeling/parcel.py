@@ -435,7 +435,11 @@ def place_slashed_label_with_out_arrow(conn, id, original_geom, geom_parcel, lab
     minx, miny, maxx, maxy = cfg.input_bbox
     input_bbox = box(minx, miny, maxx, maxy)
     if input_bbox.intersects(largest) and input_bbox.intersection(largest).area > 20:
-        largest = input_bbox.intersection(largest)
+        clipped = input_bbox.intersection(largest)
+        # intersection may yield MultiPolygon/GeometryCollection; polylabel needs a Polygon
+        if clipped.geom_type != "Polygon":
+            clipped = max((g for g in getattr(clipped, "geoms", []) if g.geom_type == "Polygon"), key=lambda p: p.area)
+        largest = clipped
 
     angle_list = [int(util.pca_angle_geom(original_largest)), int(util.pca_angle_geom(largest))]
     label_point_list = [polylabel(largest), largest.representative_point()]
