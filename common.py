@@ -281,7 +281,7 @@ def create_db(cfg, db_name):
 
         if not exists:
             # Create the database
-            cur.execute(f"CREATE DATABASE {db_name};")
+            cur.execute(f"CREATE DATABASE {db_name} TEMPLATE alkis_template;")
 
             print(f"Database '{db_name}' created successfully!")
         else:

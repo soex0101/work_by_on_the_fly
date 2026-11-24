@@ -27,7 +27,7 @@ def create_alkis_db():
 
     # ---- Step 2: Create database ----
     cur.execute(f"DROP DATABASE IF EXISTS {DB_NAME} WITH (FORCE);")
-    cur.execute(f"CREATE DATABASE {DB_NAME};")
+    cur.execute(f"CREATE DATABASE {DB_NAME} TEMPLATE alkis_template;")
 
     cur.close()
     conn.close()
