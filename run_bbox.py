@@ -266,6 +266,8 @@ def main():
             continue
         if not cfg.atlas_dashed_wms_available and script in ("dashed_detection/download_wms.py", "dashed_detection/detect_lines.py"):
             continue
+        if not cfg.road_classification and script in ("road_classification.py", "nas/polygon_road_classification.py"):
+            continue
         if cfg.building_source != 'runtime' and script == "building/runtime.py":
             continue
         if cfg.vertex_source != 'runtime' and script == "vertex/runtime.py":

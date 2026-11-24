@@ -124,6 +124,7 @@ class Config:
     atlas_dashed_wms_available: bool
     street_center_wms_available: bool
     atlas_search_available: bool
+    road_classification: bool
 
     # db_connection
     host: str
@@ -279,6 +280,7 @@ def load_config(run_id: str = "") -> Config:
     atlas_dashed_wms_available = cfg.getboolean("service_availability", "atlas_dashed_wms_available", fallback=True)
     street_center_wms_available = cfg.getboolean("service_availability", "street_center_wms_available", fallback=True)
     atlas_search_available = cfg.getboolean("service_availability", "atlas_search_available", fallback=True)
+    road_classification = cfg.getboolean("service_availability", "road_classification", fallback=True)
 
     # --- connection ---
     host = cfg.get("db_connection", "host")
@@ -422,6 +424,7 @@ def load_config(run_id: str = "") -> Config:
         atlas_dashed_wms_available=atlas_dashed_wms_available,
         street_center_wms_available=street_center_wms_available,
         atlas_search_available=atlas_search_available,
+        road_classification=road_classification,
         host=host,
         port=port,
         user=user,
