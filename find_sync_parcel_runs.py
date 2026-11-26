@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run 2_rest_different_parcel.py for every run in settings_backup and print the run ids
+Run 2_rest_sync_parcel.py for every run in settings_backup and print the run ids
 for which it returned 1, i.e. the runs whose parcels still need to be synced.
 
 The run id of settings_backup/settings_<run_id>.ini is <run_id>.
@@ -16,7 +16,7 @@ from pathlib import Path
 from read_settings import load_config
 
 PROJECT = Path(__file__).resolve().parent
-SYNC_SCRIPT = "2_rest_different_parcel.py"
+SYNC_SCRIPT = "2_rest_sync_parcel.py"
 
 
 def main():

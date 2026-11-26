@@ -26,6 +26,7 @@ freetype-py==2.5.1
 frozenlist==1.8.0
 GDAL==3.11.3
 geopandas==1.1.2
+greenlet==3.5.1
 h11==0.16.0
 h2==4.3.0
 hpack==4.1.0
@@ -36,16 +37,19 @@ kiwisolver==1.4.9
 lxml==6.0.2
 matplotlib==3.10.8
 multidict==6.7.0
+networkx==3.4.2
 numpy==2.2.6
 opencv-python==4.12.0.88
 outcome==1.3.0.post0
 packaging==25.0
 pandas==2.3.3
 pillow==12.0.0
+playwright==1.60.0
 propcache==0.4.1
 psycopg2==2.9.11
 pyasn1==0.6.1
 pycparser==2.23
+pyee==13.0.1
 pyogrio==0.12.1
 pyOpenSSL==25.3.0
 pyparsing==3.3.1

@@ -11,7 +11,7 @@ def convert_bbox_epsg(src_epsg, dest_epsg, bbox):
     return (new_minx, new_miny, new_maxx, new_maxy)
 
 def convert_bbox(conversion_type, bbox):
-    espg_list = ["EPSG:4326", "EPSG:3857", "EPSG:102100", "EPSG:25832"]
+    espg_list = ["EPSG:4326", "EPSG:3857", "EPSG:102100", "EPSG:25832", "EPSG:25833"]
 
     print("Converted BBOX:")
     for epsg in espg_list:
@@ -23,15 +23,13 @@ def convert_bbox(conversion_type, bbox):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        print("Usage: python convert_bbox.py <input-epsg> <minx> <miny> <maxx> <maxy>")
+    if len(sys.argv) != 3:
+        print("Usage: python epsg_transformer.py <input-epsg> <minx,miny,maxx,maxy>")
         sys.exit(1)
 
     conversion_type = sys.argv[1]
-    minx = float(sys.argv[2])
-    miny = float(sys.argv[3])
-    maxx = float(sys.argv[4])
-    maxy = float(sys.argv[5])
+    bbox_str = sys.argv[2]
+    minx, miny, maxx, maxy = map(float, bbox_str.split(","))
 
     bbox = (minx, miny, maxx, maxy)
     convert_bbox(conversion_type, bbox)
