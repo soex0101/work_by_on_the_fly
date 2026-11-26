@@ -105,7 +105,7 @@ update_query = f"""
     SET geom = ST_Intersection(
         geom,
         ST_MakeEnvelope(%s, %s, %s, %s, 25832)
-    );
+    , 0.01);
 """
 db_crud.run_query(connection_cadastral, update_query, cfg.bbox)
 

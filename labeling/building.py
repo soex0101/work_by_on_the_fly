@@ -155,7 +155,7 @@ def get_building_edge_toward_street(building_geom, street_geom):
 def get_street_center_geom(conn, street_id):
     query = f"""
         SELECT 
-            ST_AsText(ST_Union(s.street_center_wms)), ST_AsText(ST_Union(p.geom)) 
+            ST_AsText(ST_Union(s.street_center_wms, 0.01)), ST_AsText(ST_Union(p.geom, 0.01)) 
         FROM by_bbox_parcel_{run_id} p
         LEFT JOIN by_bbox_parcel_street_{run_id} s ON p.id = s.parcel_id
         WHERE p.id = %s
@@ -174,7 +174,7 @@ def get_nearest_street_center_geom(conn, geom):
             LIMIT 1
         )
         SELECT
-            ST_AsText(ST_Union(COALESCE(s.street_center_wms, n.street_center))),
+            ST_AsText(ST_Union(COALESCE(s.street_center_wms, n.street_center), 0.01)),
             ST_AsText(n.geom)
         FROM nearest n
         LEFT JOIN by_bbox_parcel_street_{run_id} s ON n.id = s.parcel_id
@@ -815,13 +815,13 @@ def get_rotated_building_no_geom_label(conn, center_x, center_y, text, font_size
 def get_free_building_geom(conn, center_point):
     query = f"""
         SELECT 
-            ST_AsText(ST_Difference(p.geom, o.obstacles_geom)) free_geom
+            ST_AsText(ST_Difference(p.geom, o.obstacles_geom, 0.01)) free_geom
         FROM (
             SELECT geom FROM by_bbox_parcel_{run_id}
             WHERE ST_Contains(geom, ST_GeomFromText(%s, 25832))
         ) p
         LEFT JOIN LATERAL (
-            SELECT ST_Union(calculated_label_area) AS obstacles_geom
+            SELECT ST_Union(calculated_label_area, 0.01) AS obstacles_geom
             FROM by_bbox_labels_{run_id}
         ) o ON true
     """
@@ -932,7 +932,7 @@ def process_multiple_no_geom_building_labels(conn, address_list):
             FROM by_bbox_address_{run_id} a
             LEFT JOIN by_bbox_parcel_{run_id} p ON ST_Contains(p.geom, a.house_center_point_geom)
             LEFT JOIN (
-                SELECT ST_Union(p.geom) geom, s.street_name
+                SELECT ST_Union(p.geom, 0.01) geom, s.street_name
                 FROM by_bbox_parcel_street_{run_id} s
                 LEFT JOIN by_bbox_parcel_{run_id} p ON s.parcel_id = p.id
                 GROUP BY street_name
@@ -1389,7 +1389,7 @@ def main(is_production):
                     p.id
                 FROM by_bbox_address_{run_id} a
                 LEFT JOIN (
-                    SELECT ST_Union(p.geom) geom, s.street_name
+                    SELECT ST_Union(p.geom, 0.01) geom, s.street_name
                     FROM by_bbox_parcel_street_{run_id} s
                     LEFT JOIN by_bbox_parcel_{run_id} p ON s.parcel_id = p.id
                     GROUP BY street_name
@@ -1399,10 +1399,10 @@ def main(is_production):
                         p.id, 
                         ST_Difference(p.geom, 
                             COALESCE(o.obs_geom, ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832))
-                        ) geom
+                        , 0.01) geom
                     FROM by_bbox_parcel_{run_id} p
                     LEFT JOIN LATERAL (
-                        SELECT ST_Union(geom) obs_geom
+                        SELECT ST_Union(geom, 0.01) obs_geom
                         FROM by_bbox_building_{run_id} b
                         WHERE ST_Intersects(b.geom, p.geom)
                     ) o ON true
@@ -1435,16 +1435,16 @@ def main(is_production):
             p.id
         FROM by_bbox_address_{run_id} a
         LEFT JOIN (
-            SELECT ST_Union(p.geom) geom, s.street_name
+            SELECT ST_Union(p.geom, 0.01) geom, s.street_name
             FROM by_bbox_parcel_street_{run_id} s
             LEFT JOIN by_bbox_parcel_{run_id} p ON s.parcel_id = p.id
             GROUP BY street_name
         ) s ON a.street_name = s.street_name
         LEFT JOIN (
-            SELECT p.id, p.geom geom, ST_Difference(p.geom, o.obs_geom) obs_geom
+            SELECT p.id, p.geom geom, ST_Difference(p.geom, o.obs_geom, 0.01) obs_geom
             FROM by_bbox_parcel_{run_id} p
             LEFT JOIN LATERAL (
-                SELECT ST_Union(geom) obs_geom
+                SELECT ST_Union(geom, 0.01) obs_geom
                 FROM by_bbox_building_{run_id} b
                 WHERE ST_Intersects(b.geom, p.geom)
             ) o ON true

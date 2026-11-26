@@ -107,14 +107,14 @@ db_crud.run_query(connection_cadastral, query)
 
 remote_verwaltungseinheit = (
     f"SELECT level, art, "
-    f"ST_CollectionExtract(ST_Intersection(ST_Boundary(geom), {envelope}), 2) "
+    f"ST_CollectionExtract(ST_Intersection(ST_Boundary(geom), {envelope}, 0.01), 2) "
     f"FROM public.verwaltungseinheit "
     f"WHERE geom && {envelope} AND ST_Intersects(ST_Boundary(geom), {envelope})"
 )
 
 remote_katasterbezirk = (
     f"SELECT {GEMARKUNG_LEVEL}, art, "
-    f"ST_CollectionExtract(ST_Intersection(ST_Boundary(geom), {envelope}), 2) "
+    f"ST_CollectionExtract(ST_Intersection(ST_Boundary(geom), {envelope}, 0.01), 2) "
     f"FROM public.katasterbezirk "
     f"WHERE geom && {envelope} AND ST_Intersects(ST_Boundary(geom), {envelope})"
 )
@@ -163,18 +163,18 @@ for level, adf, signaturnummer in BOUNDARY_KINDS:
     INSERT INTO public.by_bbox_boundary_{run_id} (level, art, adf, signaturnummer, geom)
     SELECT %s, u.art, %s, %s, ST_Multi(g.geom)
     FROM (
-        SELECT ST_Union(geom) AS geom, min(art) AS art
+        SELECT ST_Union(geom, 0.01) AS geom, min(art) AS art
         FROM public.by_bbox_boundary_raw_{run_id}
         WHERE level = %s
     ) u
     LEFT JOIN LATERAL (
-        SELECT ST_Union(geom) AS geom FROM public.by_bbox_boundary_{run_id}
+        SELECT ST_Union(geom, 0.01) AS geom FROM public.by_bbox_boundary_{run_id}
     ) done ON true
     CROSS JOIN LATERAL (
         SELECT (ST_Dump(ST_LineMerge(
             CASE
             WHEN done.geom IS NULL THEN u.geom
-            ELSE ST_CollectionExtract(ST_Difference(u.geom, ST_Buffer(done.geom, %s)), 2)
+            ELSE ST_CollectionExtract(ST_Difference(u.geom, ST_Buffer(done.geom, %s), 0.01), 2)
             END
         ))).geom AS geom
     ) g

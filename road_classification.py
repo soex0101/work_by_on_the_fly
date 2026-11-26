@@ -82,7 +82,7 @@ def update_road_classification(db_param, road_classification_list):
             SELECT 
                 t.id AS parcel_id,
                 il.line_id,
-                ST_Length(ST_Intersection(t.geom, il.geom)) AS intersect_len
+                ST_Length(ST_Intersection(t.geom, il.geom, 0.01)) AS intersect_len
             FROM by_bbox_parcel_{run_id} t
             JOIN input_lines il ON ST_Intersects(t.geom, il.geom)
             WHERE is_street = true

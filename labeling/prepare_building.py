@@ -298,9 +298,9 @@ def main(is_production):
                 JOIN LATERAL (
                     SELECT
                         c.color,
-                        ST_Area(ST_Intersection(b.geom, c.geom))
+                        ST_Area(ST_Intersection(b.geom, c.geom, 0.01))
                         / NULLIF(
-                            ST_Area(ST_Union(b.geom, c.geom)),
+                            ST_Area(ST_Union(b.geom, c.geom, 0.01)),
                             0
                         ) AS iou
                     FROM by_bbox_building_color_{run_id} c
