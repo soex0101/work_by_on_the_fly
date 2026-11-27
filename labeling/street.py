@@ -45,7 +45,7 @@ def check_street_name_render(conn, id, street_name, geom):
         ) t
         CROSS JOIN input_geom g
         WHERE
-            ST_Area(ST_Intersection(t.geom, ST_Buffer(g.geom, 0.1), 0.01)) > 1
+            ST_Area(ST_Intersection(t.geom, ST_Buffer(g.geom, 0.1))) > 1
             AND ST_Area(t.geom) > ST_Area(g.geom)
     """
     neighbor_list = db_crud.run_query(conn, query, (geom, street_name, id))
@@ -367,12 +367,12 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, overlap_t
     # Get free geom in parcel geometry and get free geom near parcel
     query = f"""
         SELECT
-            ST_AsText(ST_Difference(o.obstacles_geom, ST_GeomFromText(%s, 25832), 0.01)) free_geom
+            ST_AsText(ST_Difference(o.obstacles_geom, ST_GeomFromText(%s, 25832))) free_geom
         FROM (
             SELECT ST_Buffer(ST_Difference(p.geom, COALESCE(
                     o.obstacles_geom, 
                     ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                ), 0.01), %s) geom
+                )), %s) geom
             FROM (
                 SELECT geom
                 FROM by_bbox_parcel_{run_id}
@@ -415,7 +415,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, overlap_t
             SELECT ST_Intersection(ST_Difference(np.geom, COALESCE(
                     o.obstacles_geom, 
                     ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                ), 0.01), p.geom, 0.01) AS obstacles_geom, is_street
+                )), p.geom) AS obstacles_geom, is_street
             FROM (
                 SELECT geom, is_street
                 FROM by_bbox_parcel_{run_id}
@@ -471,7 +471,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, overlap_t
                 SELECT ST_Buffer(ST_Difference(p.geom, COALESCE(
                         o.obstacles_geom, 
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                    ), 0.01), %s) geom
+                    )), %s) geom
                 FROM (
                     SELECT geom
                     FROM by_bbox_parcel_{run_id}
@@ -508,7 +508,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, overlap_t
                 SELECT ST_Intersection(ST_Difference(np.geom, COALESCE(
                         o.obstacles_geom, 
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                    ), 0.01), p.geom, 0.01) AS obstacles_geom, is_street
+                    )), p.geom) AS obstacles_geom, is_street
                 FROM (
                     SELECT geom, is_street
                     FROM by_bbox_parcel_{run_id}
@@ -675,7 +675,7 @@ def get_free_geom(conn, id):
                 b.obstacles_geom, 
                 ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
             )
-        , 0.01)) free_geom
+        )) free_geom
         FROM (
             SELECT geom
             FROM by_bbox_parcel_{run_id}
@@ -1311,7 +1311,7 @@ def main(is_production):
                         obstacle.obs_geom, 
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
                     )
-                , 0.01)
+                )
             ) AS geom,
             ST_AsText(
                 ST_Difference(
@@ -1320,7 +1320,7 @@ def main(is_production):
                         obstacle.obs_geom, 
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
                     )
-                , 0.01)
+                )
             ) AS center_geom
         FROM by_bbox_parcel_{run_id} p
         JOIN by_bbox_parcel_street_{run_id} s ON p.id = s.parcel_id

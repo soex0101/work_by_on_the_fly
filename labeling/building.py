@@ -815,7 +815,7 @@ def get_rotated_building_no_geom_label(conn, center_x, center_y, text, font_size
 def get_free_building_geom(conn, center_point):
     query = f"""
         SELECT 
-            ST_AsText(ST_Difference(p.geom, o.obstacles_geom, 0.01)) free_geom
+            ST_AsText(ST_Difference(p.geom, o.obstacles_geom)) free_geom
         FROM (
             SELECT geom FROM by_bbox_parcel_{run_id}
             WHERE ST_Contains(geom, ST_GeomFromText(%s, 25832))
@@ -1399,7 +1399,7 @@ def main(is_production):
                         p.id, 
                         ST_Difference(p.geom, 
                             COALESCE(o.obs_geom, ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832))
-                        , 0.01) geom
+                        ) geom
                     FROM by_bbox_parcel_{run_id} p
                     LEFT JOIN LATERAL (
                         SELECT ST_Union(geom, 0.01) obs_geom
@@ -1441,7 +1441,7 @@ def main(is_production):
             GROUP BY street_name
         ) s ON a.street_name = s.street_name
         LEFT JOIN (
-            SELECT p.id, p.geom geom, ST_Difference(p.geom, o.obs_geom, 0.01) obs_geom
+            SELECT p.id, p.geom geom, ST_Difference(p.geom, o.obs_geom) obs_geom
             FROM by_bbox_parcel_{run_id} p
             LEFT JOIN LATERAL (
                 SELECT ST_Union(geom, 0.01) obs_geom

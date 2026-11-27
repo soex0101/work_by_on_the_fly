@@ -1140,7 +1140,7 @@ def process_parcel_range(parcel_list, counter, run_id, db_cadastral_param):
                 FROM by_bbox_parcel_{run_id}
                 WHERE id = %s
             )
-            SELECT ST_Area(parcel.geom), ST_Area(street.geom), ST_Area(ST_Intersection(parcel.geom, street.geom, 0.01)) AS geom
+            SELECT ST_Area(parcel.geom), ST_Area(street.geom), ST_Area(ST_Intersection(parcel.geom, street.geom)) AS geom
             FROM parcel, street
             WHERE ST_Intersects(parcel.geom, street.geom)
         """
@@ -1165,7 +1165,7 @@ def process_parcel_range(parcel_list, counter, run_id, db_cadastral_param):
                         r.id,
                         nutzart,
                         COALESCE(name, ''),
-                        ST_Area(ST_Intersection(r.geom, p.geom, 0.01)) AS intersection_area
+                        ST_Area(ST_Intersection(r.geom, p.geom)) AS intersection_area
                     FROM by_bbox_landkreis_{run_id} r
                     JOIN parcel p ON r.geom && p.geom AND ST_Intersects(r.geom, p.geom)
                     WHERE r.nutzart IN ('Weg', 'Straßenverkehr')
@@ -1301,7 +1301,7 @@ def suppress_nearby_street_labels(conn, run_id, ratio):
             WHERE s.street_name IS NOT NULL AND s.street_name <> ''
         )
         SELECT a.row_id, b.row_id,
-               ST_Length(ST_Intersection(ST_Boundary(a.parcel_geom), ST_Boundary(b.parcel_geom), 0.01)) AS shared_len,
+               ST_Length(ST_Intersection(ST_Boundary(a.parcel_geom), ST_Boundary(b.parcel_geom))) AS shared_len,
                LEAST(a.perim, b.perim) AS min_perim
         FROM street_rows a
         JOIN street_rows b
@@ -1408,7 +1408,7 @@ if __name__ == "__main__":
                     SELECT ST_Area(
                         ST_UnaryUnion(
                             ST_Collect(
-                                ST_Intersection(l.geom, p.org_geom, 0.01)
+                                ST_Intersection(l.geom, p.org_geom)
                             )
                         , 0.01)
                     )
@@ -1422,7 +1422,7 @@ if __name__ == "__main__":
                 ST_Intersection(
                     ST_MakeEnvelope(%s, %s, %s, %s,25832),
                     l.geom
-                , 0.01)
+                )
             );
     """
 

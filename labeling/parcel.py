@@ -612,7 +612,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, check_par
                 ST_Difference(  
                     o.obstacles_geom, 
                     ST_GeomFromText(%s, 25832)
-                , 0.01)
+                )
             ) free_geom,
             ST_AsText(p.free_org_geom) free_org_geom
         FROM (
@@ -658,7 +658,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, check_par
                             25832
                         )
                     )
-                , 0.01) AS diff_geom
+                ) AS diff_geom
             ) difference_result
 
             -- Use original parcel geometry if difference is NULL or empty
@@ -676,7 +676,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, check_par
             SELECT ST_Intersection(ST_Difference(np.geom, COALESCE(
                     o.obstacles_geom, 
                     ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                ), 0.01), p.geom, 0.01) AS obstacles_geom, is_street,
+                )), p.geom) AS obstacles_geom, is_street,
                 np.geom original_geom
             FROM (
                 SELECT geom, is_street
@@ -726,8 +726,8 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, check_par
                 SELECT ST_Buffer(ST_Difference(p.geom, COALESCE(
                         o.obstacles_geom, 
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                    ), 0.01), %s) geom,
-                    ST_Difference(p.geom, o.obstacles_geom, 0.01) free_org_geom
+                    )), %s) geom,
+                    ST_Difference(p.geom, o.obstacles_geom) free_org_geom
                 FROM (
                     SELECT geom
                     FROM by_bbox_parcel_{run_id}
@@ -755,7 +755,7 @@ def place_label_with_arrow(conn, gml_id, geom_parcel, zaehler, nenner, check_par
                 SELECT ST_Intersection(ST_Difference(np.geom, COALESCE(
                         o.obstacles_geom, 
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                    ), 0.01), p.geom, 0.01) AS obstacles_geom, is_street
+                    )), p.geom) AS obstacles_geom, is_street
                 FROM (
                     SELECT geom, is_street
                     FROM by_bbox_parcel_{run_id}
@@ -917,7 +917,7 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
             SELECT ST_AsText(ST_Difference(p.geom, COALESCE(
                     b.obstacles_geom, 
                     ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
-                ), 0.01)) free_geom
+                ))) free_geom
             FROM (
                 SELECT ST_GeomFromText(%s, 25832) geom
             ) p
@@ -977,11 +977,11 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
 
             building_raw AS (
                 SELECT
-                    ST_CollectionExtract(ST_Intersection(b.geom, p.geom, 0.01), 3) AS geom
+                    ST_Intersection(b.geom, p.geom) AS geom
                 FROM by_bbox_building_{run_id} b
                 JOIN parcel p
                     ON ST_Intersects(p.geom, b.geom)
-                WHERE ST_Area(ST_Intersection(p.geom, b.geom, 0.01)) > 1
+                WHERE ST_Area(ST_Intersection(p.geom, b.geom)) > 1
             ),
 
             building_intersections AS (
@@ -993,11 +993,11 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
 
             landkreis_intersections AS (
                 SELECT
-                    ST_CollectionExtract(ST_Intersection(l.geom, p.geom, 0.01), 3) AS geom
+                    ST_Intersection(l.geom, p.geom) AS geom
                 FROM by_bbox_landkreis_{run_id} l
                 JOIN parcel p
                     ON ST_Intersects(p.geom, l.geom)
-                WHERE ST_Area(ST_Intersection(p.geom, l.geom, 0.01)) > 1
+                WHERE ST_Area(ST_Intersection(p.geom, l.geom)) > 1
                 AND l.nutzart IN ('Industrie- und Gewerbefläche')
             ),
 
@@ -1009,7 +1009,7 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
                             b.geom,
                             ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', ST_SRID(l.geom))
                         )
-                    , 0.01) AS geom
+                    ) AS geom
                 FROM landkreis_intersections l
                 LEFT JOIN building_intersections b
                     ON true
@@ -1035,7 +1035,7 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
                             obs.obstacles_geom,
                             ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
                         )
-                    , 0.01)
+                    )
                 ) AS free_geom
             FROM candidate_geoms c
             LEFT JOIN LATERAL (
@@ -1067,7 +1067,7 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
                         obs.obstacles_geom,
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
                     )
-                , 0.01)
+                )
             )
             ORDER BY source ASC, ST_Area(c.geom) DESC
         """
@@ -1208,9 +1208,9 @@ def check_enough_free_size(conn, id):
                             o.geom,
                             ST_GeomFromText('POLYGON EMPTY', 25832)
                         )
-                    , 0.01),
+                    ),
                     ST_MakeEnvelope(%s, %s, %s, %s, 25832)
-                , 0.01)
+                )
             ) AS remaining_parcel_area
         FROM parcel_geom p
         CROSS JOIN obstacles o;
@@ -1249,9 +1249,9 @@ def check_enough_free_size(conn, id):
                                 o.geom,
                                 ST_GeomFromText('POLYGON EMPTY', 25832)
                             )
-                        , 0.01),
+                        ),
                         ST_MakeEnvelope(%s, %s, %s, %s, 25832)
-                    , 0.01)
+                    )
                 ) AS remaining_parcel_area
             FROM parcel_geom p
             CROSS JOIN obstacles o;
@@ -1564,7 +1564,7 @@ def main(is_production):
                         b.obstacles_geom,
                         ST_GeomFromText('GEOMETRYCOLLECTION EMPTY', 25832)
                     )
-                , 0.01) AS diff_geom
+                ) AS diff_geom
             FROM by_bbox_parcel_{run_id} p
             LEFT JOIN LATERAL (
                 SELECT ST_Union(bld.geom, 0.01) AS obstacles_geom

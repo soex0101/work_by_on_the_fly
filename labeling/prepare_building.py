@@ -298,7 +298,7 @@ def main(is_production):
                 JOIN LATERAL (
                     SELECT
                         c.color,
-                        ST_Area(ST_Intersection(b.geom, c.geom, 0.01))
+                        ST_Area(ST_Intersection(b.geom, c.geom))
                         / NULLIF(
                             ST_Area(ST_Union(b.geom, c.geom, 0.01)),
                             0
