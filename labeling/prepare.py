@@ -102,10 +102,10 @@ db_crud.run_query(connection_cadastral, default_val_query)
 # Update geom as intersection with bbox
 update_query = f"""
     UPDATE by_bbox_parcel_{run_id}
-    SET geom = ST_Intersection(
+    SET geom = ST_CollectionExtract(ST_Intersection(
         geom,
         ST_MakeEnvelope(%s, %s, %s, %s, 25832)
-    , 0.01);
+    , 0.01), 3);
 """
 db_crud.run_query(connection_cadastral, update_query, cfg.bbox)
 

@@ -977,7 +977,7 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
 
             building_raw AS (
                 SELECT
-                    ST_Intersection(b.geom, p.geom, 0.01) AS geom
+                    ST_CollectionExtract(ST_Intersection(b.geom, p.geom, 0.01), 3) AS geom
                 FROM by_bbox_building_{run_id} b
                 JOIN parcel p
                     ON ST_Intersects(p.geom, b.geom)
@@ -993,7 +993,7 @@ def get_free_geom(conn, id, polygon_wkt, is_include_building):
 
             landkreis_intersections AS (
                 SELECT
-                    ST_Intersection(l.geom, p.geom, 0.01) AS geom
+                    ST_CollectionExtract(ST_Intersection(l.geom, p.geom, 0.01), 3) AS geom
                 FROM by_bbox_landkreis_{run_id} l
                 JOIN parcel p
                     ON ST_Intersects(p.geom, l.geom)
