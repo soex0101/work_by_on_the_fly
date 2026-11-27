@@ -197,7 +197,7 @@ def main():
         })
 
         query = f"""
-            SELECT COALESCE(ST_Area(ST_Union(ST_Force2D(geometry), 0.01)), 0)
+            SELECT COALESCE(ST_Area(ST_Union(ST_Force2D(geometry))), 0)
             FROM citydb.surface_geometry 
             WHERE geometry IS NOT NULL AND ST_Intersects(ST_MakeEnvelope(%s, %s, %s, %s,25832), geometry) 
         """
